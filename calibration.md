@@ -1,5 +1,10 @@
 # SO101 Calibration
 
+## find port
+```bash
+lerobot-find-port
+```
+
 ## follower arm
 ```bash
 lerobot-calibrate \
@@ -27,3 +32,7 @@ lerobot-teleoperate \
     --teleop.id=my_awesome_leader_arm
 ```
 
+## Find Camera
+```bash
+lerobot-find-cameras opencv
+```
