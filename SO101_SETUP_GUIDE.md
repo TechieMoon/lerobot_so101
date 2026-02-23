@@ -182,3 +182,17 @@ huggingface-cli upload ${HF_USER}/record-test ~/.cache/huggingface/lerobot/{repo
 - `gRPC transport error`:
   `display_data` 시각화 쪽 로그성 경고인 경우가 많고, 텔레옵이 실제 동작하면 치명적이지 않은 경우가 많음.
 
+
+# 데이터셋 보기
+- 동영상으로 보기: https://huggingface.co/spaces/lerobot/visualize_dataset
+- 수치로 보기: https://huggingface.co/TechieMoon
+
+## Replay an episode
+```bash
+lerobot-replay \
+    --robot.type=so101_follower \
+    --robot.port="$FOLLOWER_PORT" \
+    --robot.id=my_awesome_follower_arm \
+    --dataset.repo_id=${HF_USER}/record-test-1 \
+    --dataset.episode=0
+```
