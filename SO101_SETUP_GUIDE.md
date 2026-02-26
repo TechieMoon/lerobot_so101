@@ -19,6 +19,11 @@ export FOLLOWER_PORT=/dev/ttyACM0
 export LEADER_PORT=/dev/ttyACM1
 ```
 
+새 컴퓨터에 포트 접근 권한을 줘야 합니다.
+```bash
+sudo chmod 666 /dev/ttyACM0 /dev/ttyACM1
+```
+
 ## 2) 캘리브레이션
 ### follower arm
 ```bash
@@ -42,6 +47,16 @@ lerobot-calibrate \
 lerobot-find-cameras opencv
 ```
 
+### 카메라 켜보기
+```bash
+ffplay /dev/video0
+```
+
+### 새 컴퓨터에 비디오 장치 접근 권한을 줘야 합니다.
+```bash
+sudo chmod 666 /dev/video12 /dev/video14
+```
+
 ### 경로 확인 (`by-path` 권장)
 ```bash
 ls -l /dev/v4l/by-path/
@@ -54,8 +69,8 @@ ls -l /dev/v4l/by-path/
 - `/dev/v4l/by-path/pci-0000:00:14.0-usb-0:9.2:1.0-video-index0`
 
 ```bash
-export TOP_CAM_PATH=/dev/v4l/by-path/pci-0000:00:14.0-usb-0:10:1.0-video-index0
-export WRIST_CAM_PATH=/dev/v4l/by-path/pci-0000:00:14.0-usb-0:9.2:1.0-video-index0
+export TOP_CAM_PATH=/dev/video14
+export WRIST_CAM_PATH=/dev/video12
 ```
 
 ## 4) 텔레옵 (카메라 없음)
@@ -134,12 +149,40 @@ lerobot-record \
   --teleop.port="$LEADER_PORT" \
   --teleop.id=my_awesome_leader_arm \
   --display_data=true \
-  --dataset.repo_id "${HF_USER}/record-test-1" \
-  --dataset.num_episodes=5 \
-  --dataset.single_task="Bring the pen into hole of the toilet paper" \
-  --dataset.episode_time_s=15 \
-  --dataset.reset_time_s=5
+  --dataset.repo_id "${HF_USER}/so-101" \
+  --dataset.num_episodes=50 \
+  --dataset.single_task="pick up the pen and put into the cup" \
+  --dataset.episode_time_s=30 \
+  --dataset.reset_time_s=7 \
+  --dataset.push_to_hub=true 
 ```
+
+### 데이터셋 저장하기
+
+```bash
+lerobot-record \
+  --robot.type=so101_follower \
+  --robot.port="$FOLLOWER_PORT" \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{
+    top: {type: opencv, index_or_path: $TOP_CAM_PATH, width: 640, height: 480, fps: 30},
+    wrist: {type: opencv, index_or_path: $WRIST_CAM_PATH, width: 640, height: 480, fps: 30}
+  }" \
+  --teleop.type=so101_leader \
+  --teleop.port="$LEADER_PORT" \
+  --teleop.id=my_awesome_leader_arm \
+  --display_data=true \
+  --dataset.repo_id "${HF_USER}/so-101" \
+  --dataset.num_episodes=50 \
+  --dataset.single_task="pick up the pen and put into the cup" \
+  --dataset.episode_time_s=30 \
+  --dataset.reset_time_s=7 \
+  --dataset.push_to_hub=true \
+  --resume=true \
+  --dataset.num_episodes=3 
+```
+
+--resume=true추가하고 --dataset.num_episodes에는 추가로 학습할 에피소드 개수를 적는다.(총 개수가 아니다.)
 
 # 자동 업로드 비활성화
 
@@ -158,7 +201,7 @@ lerobot-record \
   --display_data=true \
   --dataset.repo_id "${HF_USER}/record-test-1" \
   --dataset.num_episodes=5 \
-  --dataset.single_task="Bring the pen into hole of the toilet paper" \
+  --dataset.single_task="pick up the pen and put into the cup" \
   --dataset.episode_time_s=15 \
   --dataset.reset_time_s=5 \
   --dataset.push_to_hub=false
