@@ -281,19 +281,21 @@ huggingface-cli upload ${HF_USER}/act_so101_test${CKPT} \
 
 You can use the record script from lerobot-record with a policy checkpoint as input, to run inference and evaluate your policy. For instance, run this command or API example to run inference and record 10 evaluation episodes:
 
-
 ```bash
-lerobot-record  \
-  --robot.type=so100_follower \
-  --robot.port=/dev/ttyACM1 \
-  --robot.cameras="{ up: {type: opencv, index_or_path: /dev/video10, width: 640, height: 480, fps: 30}, side: {type: intelrealsense, serial_number_or_name: 233522074606, width: 640, height: 480, fps: 30}}" \
+lerobot-record \
+  --robot.type=so101_follower \
+  --robot.port="$FOLLOWER_PORT" \
   --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{
+    top: {type: opencv, index_or_path: $TOP_CAM_PATH, width: 640, height: 480, fps: 30},
+    wrist: {type: opencv, index_or_path: $WRIST_CAM_PATH, width: 640, height: 480, fps: 30}
+  }" \
   --display_data=false \
-  --dataset.repo_id=${HF_USER}/eval_so100 \
+  --dataset.repo_id=${HF_USER}/eval_so101 \
   --dataset.single_task="Put lego brick into the transparent box" \
   # <- Teleop optional if you want to teleoperate in between episodes \
-  # --teleop.type=so100_leader \
-  # --teleop.port=/dev/ttyACM0 \
+  # --teleop.type=so101_leader \
+  # --teleop.port="$LEADER_PORT" \
   # --teleop.id=my_awesome_leader_arm \
   --policy.path=${HF_USER}/my_policy
 ```
