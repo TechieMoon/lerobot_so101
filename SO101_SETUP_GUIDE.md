@@ -242,7 +242,6 @@ lerobot-replay \
 
 # 데이터셋으로 학습하기
 
-
 ```bash
 lerobot-train \
   --dataset.repo_id=${HF_USER}/so-101 \
@@ -252,4 +251,12 @@ lerobot-train \
   --policy.device=cuda \
   --wandb.enable=true \
   --policy.repo_id=${HF_USER}/my_policy
+```
+
+## 이어서 학습하기(중간에 끊길 때)
+
+```bash
+lerobot-train \
+  --config_path=outputs/train/act_so101_test/checkpoints/last/pretrained_model/train_config.json \
+  --resume=true
 ```
