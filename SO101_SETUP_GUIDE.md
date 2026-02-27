@@ -260,3 +260,19 @@ lerobot-train \
   --config_path=outputs/train/act_so101_test/checkpoints/last/pretrained_model/train_config.json \
   --resume=true
 ```
+
+# Upload policy checkpoints
+
+## Once training is done, upload the latest checkpoint with:
+
+```bash
+huggingface-cli upload ${HF_USER}/act_so101_test \
+  outputs/train/act_so101_test/checkpoints/last/pretrained_model
+```
+
+You can also upload intermediate checkpoints with:
+
+```bash
+huggingface-cli upload ${HF_USER}/act_so101_test${CKPT} \
+  outputs/train/act_so101_test/checkpoints/${CKPT}/pretrained_model
+```
