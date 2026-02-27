@@ -239,3 +239,17 @@ lerobot-replay \
     --dataset.repo_id=${HF_USER}/record-test-1 \
     --dataset.episode=0
 ```
+
+# 데이터셋으로 학습하기
+
+
+```bash
+lerobot-train \
+  --dataset.repo_id=${HF_USER}/so-101 \
+  --policy.type=act \
+  --output_dir=outputs/train/act_so101_test \
+  --job_name=act_so101_test \
+  --policy.device=cuda \
+  --wandb.enable=true \
+  --policy.repo_id=${HF_USER}/my_policy
+```
