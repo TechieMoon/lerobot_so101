@@ -2,6 +2,8 @@
 
 다른 컴퓨터로 옮겨도 그대로 따라할 수 있게, 포트/카메라 경로를 매번 확인해서 넣는 방식입니다.
 
+[출처](https://huggingface.co/docs/lerobot/il_robots)
+
 ## 0) 연결 원칙
 - `follower arm`과 `leader arm`의 `/dev/ttyACM*` 번호는 PC/재부팅/USB 순서에 따라 바뀔 수 있습니다.
 - 카메라는 동일 모델 2개면 `by-id`로 구분이 안 될 수 있으니 `by-path` 사용을 권장합니다.
@@ -266,14 +268,15 @@ lerobot-train \
 ## Once training is done, upload the latest checkpoint with:
 
 ```bash
-huggingface-cli upload ${HF_USER}/act_so101_test \
+hf upload ${HF_USER}/act_so101_test \
   outputs/train/act_so101_test/checkpoints/last/pretrained_model
 ```
 
 You can also upload intermediate checkpoints with:
 
 ```bash
-huggingface-cli upload ${HF_USER}/act_so101_test${CKPT} \
+CKPT=010000
+hf upload ${HF_USER}/act_so101_test${CKPT} \
   outputs/train/act_so101_test/checkpoints/${CKPT}/pretrained_model
 ```
 
@@ -292,10 +295,69 @@ lerobot-record \
   }" \
   --display_data=false \
   --dataset.repo_id=${HF_USER}/eval_so101 \
-  --dataset.single_task="Put lego brick into the transparent box" \
-  # <- Teleop optional if you want to teleoperate in between episodes \
-  # --teleop.type=so101_leader \
-  # --teleop.port="$LEADER_PORT" \
-  # --teleop.id=my_awesome_leader_arm \
-  --policy.path=${HF_USER}/my_policy
+  --dataset.single_task="Pick up the pen and put it in the cup" \
+  --dataset.streaming_encoding=true \
+  --dataset.encoder_threads=2 \
+  --policy.path=${HF_USER}/my_policy 
 ```
+
+## Teleop optional if you want to teleoperate in between episodes
+
+```bash
+lerobot-record \
+  --robot.type=so101_follower \
+  --robot.port="$FOLLOWER_PORT" \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{
+    top: {type: opencv, index_or_path: $TOP_CAM_PATH, width: 640, height: 480, fps: 30},
+    wrist: {type: opencv, index_or_path: $WRIST_CAM_PATH, width: 640, height: 480, fps: 30}
+  }" \
+  --display_data=false \
+  --dataset.repo_id=${HF_USER}/eval_so101 \
+  --dataset.single_task="Pick up the pen and put it in the cup" \
+  --teleop.type=so101_leader \
+  --teleop.port="$LEADER_PORT" \
+  --teleop.id=my_awesome_leader_arm \
+  --policy.path=${HF_USER}/my_policy 
+```
+
+# Quickly inference
+
+conda activate so-101
+
+export FOLLOWER_PORT=/dev/ttyACM0
+
+sudo chmod 666 /dev/ttyACM0
+
+lerobot-find-cameras opencv
+
+ffplay /dev/video14
+
+ffplay /dev/video12
+
+export TOP_CAM_PATH=/dev/video14
+
+export WRIST_CAM_PATH=/dev/video12
+
+sudo chmod 666 /dev/video12 /dev/video14
+
+export HF_USER=TechieMoon
+
+rm -rf /home/scilab/.cache/huggingface/lerobot/TechieMoon/eval_so101
+
+lerobot-record \
+  --robot.type=so101_follower \
+  --robot.port="$FOLLOWER_PORT" \
+  --robot.id=my_awesome_follower_arm \
+  --robot.cameras="{
+    top: {type: opencv, index_or_path: $TOP_CAM_PATH, width: 640, height: 480, fps: 30},
+    wrist: {type: opencv, index_or_path: $WRIST_CAM_PATH, width: 640, height: 480, fps: 30}
+  }" \
+  --display_data=false \
+  --dataset.repo_id=${HF_USER}/eval_so101 \
+  --dataset.single_task="Pick up the pen and put it in the cup" \
+  --policy.path=${HF_USER}/my_policy 
+
+허깅페이스 로그인 잊지 말기
+
+rm -rf /home/scilab/.cache/huggingface/lerobot/TechieMoon/eval_so101
